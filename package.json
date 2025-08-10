@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean:next": "powershell -Command \"attrib -r -h -s .next\\* /s /d; if (Test-Path .next) { cmd /c 'rd /s /q \\\\?\\%CD%\\.next' }\"",
+    "build:clean": "npm run clean:next && cross-env NEXT_DISABLE_CACHE=1 npm run build"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -38,6 +40,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cross-env": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "tailwindcss": "^4",

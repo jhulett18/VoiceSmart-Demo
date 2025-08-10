@@ -21,7 +21,7 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import type { BusinessPersona, Message, AppointmentData } from '@/types';
+import type { BusinessPersona, AppointmentData } from '@/types';
 import { useSpeechRecognition, useSpeechSynthesis } from '@/hooks/useSpeech';
 import { useChat } from '@/hooks/useChat';
 
@@ -70,8 +70,7 @@ export function VoiceBotInterface({ business }: { business: BusinessPersona }) {
     speak,
     cancel: cancelSpeech,
     isSpeaking,
-    isSupported: speechSynthesisSupported,
-    voices
+    isSupported: speechSynthesisSupported
   } = useSpeechSynthesis({
     rate: 0.9,
     pitch: 1.0,
@@ -169,8 +168,6 @@ export function VoiceBotInterface({ business }: { business: BusinessPersona }) {
   };
 
   const handleAppointmentSubmit = async () => {
-    const appointmentMessage = `Perfect! I've scheduled your appointment for ${appointmentData.service} on ${appointmentData.date} at ${appointmentData.time}. A confirmation email will be sent to ${appointmentData.email}. Is there anything else I can help you with?`;
-    
     await sendMessage(`Schedule confirmed: ${appointmentData.service} on ${appointmentData.date} at ${appointmentData.time} for ${appointmentData.name}`, false);
     
     setShowAppointmentForm(false);
@@ -512,7 +509,7 @@ export function VoiceBotInterface({ business }: { business: BusinessPersona }) {
           <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-md">
             <p className="text-xs">
               <strong>Setup Required:</strong> Add your OpenAI API key to <code>.env.local</code> as <code>OPENAI_API_KEY</code> to enable live AI responses.
-              Without it, you'll see connection errors in the chat.
+              Without it, you&apos;ll see connection errors in the chat.
             </p>
           </div>
         </CardContent>

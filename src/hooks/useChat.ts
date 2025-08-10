@@ -94,7 +94,7 @@ export function useChat({ businessId, onMessageReceived, onError }: UseChatOptio
                 accumulatedContent += parsed.content;
                 setStreamingMessage(accumulatedContent);
               }
-            } catch (error) {
+            } catch {
               // Ignore JSON parse errors for partial chunks
             }
           }

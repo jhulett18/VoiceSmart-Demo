@@ -102,6 +102,7 @@ export async function POST(request: NextRequest) {
       const readableStream = new ReadableStream({
         async start(controller) {
           try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             for await (const chunk of response as any) {
               const content = chunk.choices[0]?.delta?.content || '';
               if (content) {
@@ -129,7 +130,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } else {
-      const completionResponse = response as any;
+      const completionResponse = response as { choices: Array<{ message: { content: string } }> };
       return NextResponse.json({
         content: completionResponse.choices[0]?.message?.content || 'No response generated'
       });
