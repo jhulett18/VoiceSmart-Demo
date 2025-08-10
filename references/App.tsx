@@ -1,11 +1,20 @@
-'use client';
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { VoiceBotInterface } from '@/components/VoiceBotInterface';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
+import { Button } from './components/ui/button';
+import { VoiceBotInterface } from './components/VoiceBotInterface';
 import { ArrowLeft, Phone, Car, Dumbbell, Activity } from 'lucide-react';
-import { BusinessPersona } from '@/types';
+
+export interface BusinessPersona {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  color: string;
+  icon: React.ReactNode;
+  services: string[];
+  hours: string;
+  phone: string;
+}
 
 const businessPersonas: BusinessPersona[] = [
   {
@@ -43,7 +52,7 @@ const businessPersonas: BusinessPersona[] = [
   }
 ];
 
-export default function Home() {
+export default function App() {
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessPersona | null>(null);
 
   if (selectedBusiness) {
