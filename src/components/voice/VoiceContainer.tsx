@@ -14,13 +14,15 @@ import { PushToTalkButton } from './PushToTalkButton';
 import { VoiceStatus } from './VoiceStatus';
 import { TranscriptDisplay } from './TranscriptDisplay';
 import { VoiceControls } from './VoiceControls';
+import { MicrophonePermissionButton } from './MicrophonePermissionButton';
+import { DebugPanel } from './DebugPanel';
 
 interface VoiceContainerProps {
   business: BusinessPersona;
 }
 
 export function VoiceContainer({ business }: VoiceContainerProps) {
-  const { setBusiness, currentState, transcript } = useVoiceStore();
+  const { setBusiness, currentState, transcript, microphonePermission, speechRecognitionSupported } = useVoiceStore();
   const { shortcutText } = useKeyboardShortcuts();
   const { processVoiceInput } = useVoiceAPI();
 
@@ -53,13 +55,31 @@ export function VoiceContainer({ business }: VoiceContainerProps) {
           {/* Status Display */}
           <VoiceStatus />
 
-          {/* Push to Talk Button */}
-          <PushToTalkButton />
+          {/* Microphone Permission Button (shows when permission needed) */}
+          <MicrophonePermissionButton />
 
-          {/* Keyboard Shortcut Hint */}
-          <div className="text-center text-sm text-muted-foreground">
-            {shortcutText}
-          </div>
+          {/* Push to Talk Button (shows when permission granted) */}
+          {microphonePermission === 'granted' && <PushToTalkButton />}
+
+          {/* Debug: Show current permission state */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-xs text-center text-muted-foreground border border-dashed p-2 rounded">
+              Permission: <strong>{microphonePermission}</strong> | 
+              Speech: <strong>{speechRecognitionSupported ? 'Yes' : 'No'}</strong>
+            </div>
+          )}
+
+          {/* Keyboard Shortcut Hint (only when permission granted) */}
+          {microphonePermission === 'granted' && (
+            <div className="text-center text-sm text-muted-foreground">
+              {shortcutText}
+              {currentState === 'RECORDING' && (
+                <div className="mt-1 text-xs text-blue-600 animate-pulse">
+                  Spacebar activated
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Secondary Controls */}
           <VoiceControls />
@@ -68,6 +88,9 @@ export function VoiceContainer({ business }: VoiceContainerProps) {
 
       {/* Transcript Display */}
       <TranscriptDisplay />
+
+      {/* Debug Panel (development only) */}
+      <DebugPanel />
 
       {/* Instructions */}
       <Card>

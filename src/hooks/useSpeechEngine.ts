@@ -44,7 +44,8 @@ export function useSpeechEngine() {
     setError,
     stopRecording,
     startResponding,
-    finishResponding
+    finishResponding,
+    setMicrophonePermission
   } = useVoiceStore();
 
   // Initialize speech recognition
@@ -94,12 +95,27 @@ export function useSpeechEngine() {
       recognitionRef.current = recognition;
     }
 
+    // Check initial microphone permission status
+    if (typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'microphone' as PermissionName }).then((result) => {
+        setMicrophonePermission(result.state === 'granted' ? 'granted' : 
+                                result.state === 'denied' ? 'denied' : 'unknown');
+      }).catch((err) => {
+        // Permissions API not supported or failed, leave as unknown
+        console.warn('Permissions API check failed:', err);
+        setMicrophonePermission('unknown');
+      });
+    } else {
+      // No permissions API available
+      setMicrophonePermission('unknown');
+    }
+
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
     };
-  }, [setCapabilities, updateTranscript, startProcessing, setError, stopRecording]);
+  }, [setCapabilities, updateTranscript, startProcessing, setError, stopRecording, setMicrophonePermission]);
 
   const startRecording = () => {
     if (recognitionRef.current) {

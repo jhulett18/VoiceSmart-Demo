@@ -21,15 +21,18 @@ interface VoiceStore {
   // Capabilities
   speechRecognitionSupported: boolean;
   speechSynthesisSupported: boolean;
+  microphonePermission: 'unknown' | 'granted' | 'denied' | 'requesting';
   
-  // Computed Properties
-  canRecord: boolean;
-  isActive: boolean;
-  statusMessage: string;
+  // Computed Properties (will be calculated in components)
+  // canRecord: boolean;
+  // isActive: boolean;
+  // statusMessage: string;
   
   // Actions
   setBusiness: (business: BusinessPersona) => void;
   setCapabilities: (recognition: boolean, synthesis: boolean) => void;
+  requestMicrophonePermission: () => Promise<void>;
+  setMicrophonePermission: (permission: 'unknown' | 'granted' | 'denied' | 'requesting') => void;
   startRecording: () => void;
   stopRecording: () => void;
   updateTranscript: (transcript: string, interim: string) => void;
@@ -51,42 +54,7 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   error: null,
   speechRecognitionSupported: false,
   speechSynthesisSupported: false,
-  
-  // Computed Properties
-  get canRecord() {
-    const state = get();
-    return state.currentState === 'IDLE' && 
-           state.speechRecognitionSupported && 
-           state.business !== null &&
-           state.error === null;
-  },
-  
-  get isActive() {
-    const state = get();
-    return state.currentState !== 'IDLE' && state.currentState !== 'ERROR';
-  },
-  
-  get statusMessage() {
-    const state = get();
-    switch (state.currentState) {
-      case 'IDLE':
-        if (state.error) return 'Error occurred - Ready to try again';
-        if (!state.speechRecognitionSupported) return 'Microphone not supported';
-        if (!state.speechSynthesisSupported) return 'Speaker not supported';
-        if (!state.business) return 'No business selected';
-        return 'Ready to listen';
-      case 'RECORDING':
-        return 'Listening... Speak now';
-      case 'PROCESSING':
-        return 'Processing your message...';
-      case 'RESPONDING':
-        return 'Assistant is speaking...';
-      case 'ERROR':
-        return state.error || 'Something went wrong';
-      default:
-        return 'Unknown state';
-    }
-  },
+  microphonePermission: 'unknown',
   
   // Actions
   setBusiness: (business) => set({ business }),
@@ -96,9 +64,39 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
     speechSynthesisSupported: synthesis
   }),
   
+  setMicrophonePermission: (permission) => set({
+    microphonePermission: permission
+  }),
+  
+  requestMicrophonePermission: async () => {
+    set({ microphonePermission: 'requesting', error: null });
+    
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Stop the stream immediately as we just needed permission
+      stream.getTracks().forEach(track => track.stop());
+      
+      set({ microphonePermission: 'granted', error: null });
+    } catch (error) {
+      console.error('Microphone permission denied:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      set({ 
+        microphonePermission: 'denied',
+        error: `Microphone access error: ${errorMessage}. Please check your browser settings.`
+      });
+    }
+  },
+  
   startRecording: () => {
     const state = get();
-    if (state.canRecord) {
+    const canRecord = state.currentState === 'IDLE' && 
+                     state.speechRecognitionSupported && 
+                     state.microphonePermission === 'granted' &&
+                     state.business !== null &&
+                     state.error === null;
+    
+    if (canRecord) {
       set({
         currentState: 'RECORDING',
         transcript: '',

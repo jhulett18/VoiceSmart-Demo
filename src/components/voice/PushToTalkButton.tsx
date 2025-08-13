@@ -5,14 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Mic, MicOff, Loader2 } from 'lucide-react';
 import { useVoiceStore } from '@/stores/voiceStore';
 import { useSpeechEngine } from '@/hooks/useSpeechEngine';
+import { useVoiceHelpers } from '@/hooks/useVoiceHelpers';
 
 export function PushToTalkButton() {
   const { 
-    currentState, 
-    canRecord,
+    currentState,
     startRecording: storeStartRecording 
   } = useVoiceStore();
   
+  const { canRecord } = useVoiceHelpers();
   const { startRecording, stopRecording } = useSpeechEngine();
 
   const handleMouseDown = () => {

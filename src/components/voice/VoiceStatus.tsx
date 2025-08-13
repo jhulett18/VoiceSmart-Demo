@@ -12,16 +12,18 @@ import {
   Clock
 } from 'lucide-react';
 import { useVoiceStore } from '@/stores/voiceStore';
+import { useVoiceHelpers } from '@/hooks/useVoiceHelpers';
 
 export function VoiceStatus() {
   const { 
     currentState, 
-    statusMessage, 
     error,
     speechRecognitionSupported,
     speechSynthesisSupported,
     business 
   } = useVoiceStore();
+  
+  const { statusMessage } = useVoiceHelpers();
 
   const getStatusIcon = () => {
     switch (currentState) {
