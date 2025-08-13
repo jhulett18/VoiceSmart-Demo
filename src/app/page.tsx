@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { VoiceInterface } from '@/components/VoiceInterface';
+import { VoiceContainer } from '@/components/voice/VoiceContainer';
 import { ArrowLeft, Phone, Car, Dumbbell, Activity, Clock } from 'lucide-react';
 import { BusinessPersona } from '@/types';
 
@@ -13,8 +13,8 @@ const businessPersonas: BusinessPersona[] = [
     name: 'BrightSmile Dental Clinic',
     type: 'Dental Practice',
     description: 'Professional dental care with comprehensive services from routine cleanings to advanced procedures.',
-    color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-    icon: <Activity className="w-8 h-8 text-blue-600" />,
+    color: 'bg-gradient-to-br from-slate-50 to-cyan-50/30 border-slate-200 hover:from-slate-100 hover:to-cyan-50 shadow-sm hover:shadow-md',
+    icon: <Activity className="w-8 h-8 text-cyan-600" />,
     services: ['Routine Cleanings', 'Fillings', 'Root Canals', 'Cosmetic Dentistry', 'Emergency Care'],
     hours: 'Mon-Fri: 8AM-6PM, Sat: 9AM-3PM',
     phone: '(555) 123-SMILE'
@@ -24,8 +24,8 @@ const businessPersonas: BusinessPersona[] = [
     name: 'ProFix Auto Repair',
     type: 'Auto Repair Shop',
     description: 'Expert automotive repair and maintenance services with certified technicians and quality parts.',
-    color: 'bg-green-50 border-green-200 hover:bg-green-100',
-    icon: <Car className="w-8 h-8 text-green-600" />,
+    color: 'bg-gradient-to-br from-slate-50 to-emerald-50/30 border-slate-200 hover:from-slate-100 hover:to-emerald-50 shadow-sm hover:shadow-md',
+    icon: <Car className="w-8 h-8 text-emerald-600" />,
     services: ['Oil Changes', 'Brake Repair', 'Engine Diagnostics', 'Tire Service', 'Transmission Repair'],
     hours: 'Mon-Fri: 7AM-7PM, Sat: 8AM-4PM',
     phone: '(555) 456-AUTO'
@@ -35,8 +35,8 @@ const businessPersonas: BusinessPersona[] = [
     name: 'PulsePoint Fitness Gym',
     type: 'Fitness Center',
     description: 'Modern fitness facility with personal training, group classes, and state-of-the-art equipment.',
-    color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
-    icon: <Dumbbell className="w-8 h-8 text-purple-600" />,
+    color: 'bg-gradient-to-br from-slate-50 to-violet-50/30 border-slate-200 hover:from-slate-100 hover:to-violet-50 shadow-sm hover:shadow-md',
+    icon: <Dumbbell className="w-8 h-8 text-violet-600" />,
     services: ['Personal Training', 'Group Classes', 'Cardio Equipment', 'Weight Training', 'Nutrition Counseling'],
     hours: 'Mon-Fri: 5AM-11PM, Weekends: 6AM-10PM',
     phone: '(555) 789-PULSE'
@@ -69,7 +69,7 @@ export default function Home() {
           </div>
           
           {/* Voice Interface */}
-          <VoiceInterface business={selectedBusiness} />
+          <VoiceContainer business={selectedBusiness} />
           
           {/* Business Information Display */}
           <div className="max-w-4xl mx-auto space-y-6 mt-8">
@@ -149,37 +149,37 @@ export default function Home() {
                 <div className="flex items-center gap-3 mb-2">
                   {business.icon}
                   <div>
-                    <CardTitle className="text-lg">{business.name}</CardTitle>
-                    <CardDescription className="text-sm">{business.type}</CardDescription>
+                    <CardTitle className="text-lg text-gray-900 dark:text-gray-100 font-semibold">{business.name}</CardTitle>
+                    <CardDescription className="text-sm text-gray-700 dark:text-gray-300">{business.type}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-black dark:text-white mb-4 font-medium">
                   {business.description}
                 </p>
                 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Services:</h4>
+                    <h4 className="text-sm font-medium mb-1 text-gray-800 dark:text-gray-200">Services:</h4>
                     <div className="flex flex-wrap gap-1">
                       {business.services.slice(0, 3).map((service) => (
                         <span 
                           key={service}
-                          className="text-xs bg-white/60 px-2 py-1 rounded-full"
+                          className="text-xs bg-white/80 text-gray-700 px-2 py-1 rounded-full shadow-sm"
                         >
                           {service}
                         </span>
                       ))}
                       {business.services.length > 3 && (
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
                           +{business.services.length - 3} more
                         </span>
                       )}
                     </div>
                   </div>
                   
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     <p>{business.hours}</p>
                     <p>{business.phone}</p>
                   </div>
