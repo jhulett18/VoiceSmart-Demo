@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { VoiceBotInterface } from '@/components/VoiceBotInterface';
-import { ArrowLeft, Phone, Car, Dumbbell, Activity } from 'lucide-react';
+import { VoiceInterface } from '@/components/VoiceInterface';
+import { ArrowLeft, Phone, Car, Dumbbell, Activity, Clock } from 'lucide-react';
 import { BusinessPersona } from '@/types';
 
 const businessPersonas: BusinessPersona[] = [
@@ -67,7 +67,56 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <VoiceBotInterface business={selectedBusiness} />
+          
+          {/* Voice Interface */}
+          <VoiceInterface business={selectedBusiness} />
+          
+          {/* Business Information Display */}
+          <div className="max-w-4xl mx-auto space-y-6 mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>About Our Business</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground">{selectedBusiness.description}</p>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Activity className="w-4 h-4" />
+                      Our Services
+                    </h3>
+                    <ul className="space-y-2">
+                      {selectedBusiness.services.map((service, index) => (
+                        <li key={index} className="flex items-center gap-2 text-sm">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                          {service}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-semibold mb-2 flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Business Hours
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{selectedBusiness.hours}</p>
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-semibold mb-2 flex items-center gap-2">
+                        <Phone className="w-4 h-4" />
+                        Contact Information
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{selectedBusiness.phone}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
@@ -80,11 +129,11 @@ export default function Home() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Phone className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">RAG Voice Bot Demo</h1>
+            <h1 className="text-3xl font-bold">Voice Assistant Demo</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Experience AI-powered voice assistants for small businesses. 
-            Select a business to interact with their intelligent voice bot system.
+            Select a business to start a voice conversation with their intelligent assistant.
           </p>
         </div>
 
@@ -137,7 +186,7 @@ export default function Home() {
                 </div>
 
                 <Button className="w-full mt-4" variant="outline">
-                  Start Voice Chat
+                  Start Voice Call
                 </Button>
               </CardContent>
             </Card>
@@ -152,27 +201,27 @@ export default function Home() {
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
                 <Phone className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="font-medium">Full-Duplex Voice</h3>
+              <h3 className="font-medium">Voice Recognition</h3>
               <p className="text-sm text-muted-foreground">
-                Natural conversation flow with real-time voice processing
+                Natural speech-to-text processing with real-time conversation
               </p>
             </div>
             <div className="space-y-2">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <div className="w-6 h-6 bg-green-600 rounded"></div>
+                <Activity className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="font-medium">RAG-Based Knowledge</h3>
+              <h3 className="font-medium">AI Responses</h3>
               <p className="text-sm text-muted-foreground">
-                Retrieval from business SOPs and SLA documents
+                Business-specific AI trained on services, hours, and policies
               </p>
             </div>
             <div className="space-y-2">
               <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
-                <div className="w-6 h-6 bg-purple-600 rounded"></div>
+                <Clock className="w-6 h-6 text-purple-600" />
               </div>
-              <h3 className="font-medium">Smart Scheduling</h3>
+              <h3 className="font-medium">Voice Output</h3>
               <p className="text-sm text-muted-foreground">
-                Appointment booking with email confirmations
+                Text-to-speech responses for natural conversation flow
               </p>
             </div>
           </div>
