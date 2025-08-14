@@ -11,6 +11,7 @@
     "build:clean": "npm run clean:next && cross-env NEXT_DISABLE_CACHE=1 npm run build"
   },
   "dependencies": {
+    "@openai/codex": "^0.21.0",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -25,14 +26,18 @@
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-toast": "^1.2.14",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "apt": "^0.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.539.0",
     "next": "15.4.6",
+    "nvm": "^0.0.4",
     "openai": "^5.12.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "sudo": "^1.0.3",
     "tailwind-merge": "^3.3.1",
+    "update": "^0.7.4",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
