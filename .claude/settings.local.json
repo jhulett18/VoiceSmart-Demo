@@ -29,7 +29,15 @@
       "Bash(git push:*)",
       "Bash(npm install:*)",
       "Bash(npm run dev:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(npm test)",
+      "Bash(npx tsx:*)",
+      "Bash(node:*)",
+      "Bash(npm run test:redis:*)",
+      "Bash(chmod:*)",
+      "Bash(lsof:*)",
+      "Bash(ss:*)",
+      "Bash(kill:*)"
     ],
     "deny": []
   }
