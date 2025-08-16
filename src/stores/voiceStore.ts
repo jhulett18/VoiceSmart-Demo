@@ -9,6 +9,13 @@ export type VoiceState =
   | 'RESPONDING' // Bot speaking
   | 'ERROR';     // Error state with recovery
 
+export interface ConversationExchange {
+  id: string;
+  userMessage: string;
+  assistantResponse: string;
+  timestamp: Date;
+}
+
 interface VoiceStore {
   // Core State
   currentState: VoiceState;
@@ -17,6 +24,9 @@ interface VoiceStore {
   interimTranscript: string;
   currentResponse: string;
   error: string | null;
+  
+  // Conversation History
+  conversationHistory: ConversationExchange[];
   
   // Capabilities
   speechRecognitionSupported: boolean;
@@ -42,6 +52,9 @@ interface VoiceStore {
   setError: (error: string) => void;
   reset: () => void;
   clearError: () => void;
+  
+  // Conversation Actions
+  clearConversationHistory: () => void;
 }
 
 export const useVoiceStore = create<VoiceStore>((set, get) => ({
@@ -52,6 +65,7 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   interimTranscript: '',
   currentResponse: '',
   error: null,
+  conversationHistory: [],
   speechRecognitionSupported: false,
   speechSynthesisSupported: false,
   microphonePermission: 'unknown',
@@ -145,7 +159,25 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   
   finishResponding: () => {
     const state = get();
-    if (state.currentState === 'RESPONDING') {
+    if (state.currentState === 'RESPONDING' && state.transcript && state.currentResponse) {
+      // Save the completed exchange to history
+      const exchange: ConversationExchange = {
+        id: Math.random().toString(36).substring(7),
+        userMessage: state.transcript,
+        assistantResponse: state.currentResponse,
+        timestamp: new Date()
+      };
+      
+      set({
+        currentState: 'IDLE',
+        currentResponse: '',
+        transcript: '',
+        interimTranscript: '',
+        // Add new exchange at the end (bottom) for bottom-to-top ordering
+        conversationHistory: [...state.conversationHistory, exchange]
+      });
+    } else if (state.currentState === 'RESPONDING') {
+      // If no transcript/response, just go back to idle
       set({
         currentState: 'IDLE',
         currentResponse: '',
@@ -180,5 +212,9 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
     interimTranscript: '',
     currentResponse: '',
     error: null
+  }),
+  
+  clearConversationHistory: () => set({
+    conversationHistory: []
   })
 }));

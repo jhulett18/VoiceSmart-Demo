@@ -19,6 +19,8 @@ export function VoiceControls() {
   const handleStopSpeaking = () => {
     if (currentState === 'RESPONDING') {
       cancelSpeech();
+      // Clear any error state that might have been set
+      clearError();
     }
   };
 

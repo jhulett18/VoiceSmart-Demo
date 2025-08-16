@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import { useVoiceStore } from '@/stores/voiceStore';
 import { useSpeechEngine } from './useSpeechEngine';
 
@@ -7,7 +8,7 @@ export function useVoiceAPI() {
   const { business, transcript, setError } = useVoiceStore();
   const { speak } = useSpeechEngine();
 
-  const processVoiceInput = async (inputText?: string) => {
+  const processVoiceInput = useCallback(async (inputText?: string) => {
     const textToProcess = inputText || transcript;
     
     if (!textToProcess.trim() || !business) {
@@ -46,7 +47,7 @@ export function useVoiceAPI() {
       // Provide fallback response
       speak("I'm sorry, I encountered an error. Please try speaking again.");
     }
-  };
+  }, [business, transcript, setError, speak]);
 
   return {
     processVoiceInput

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Phone } from 'lucide-react';
 import { BusinessPersona } from '@/types';
@@ -12,10 +12,12 @@ import { useVoiceAPI } from '@/hooks/useVoiceAPI';
 // Import our modular components
 import { PushToTalkButton } from './PushToTalkButton';
 import { VoiceStatus } from './VoiceStatus';
-import { TranscriptDisplay } from './TranscriptDisplay';
+import { ConversationPreview } from './ConversationPreview';
 import { VoiceControls } from './VoiceControls';
 import { MicrophonePermissionButton } from './MicrophonePermissionButton';
-import { DebugPanel } from './DebugPanel';
+import { DebugModal } from './DebugModal';
+import { InstructionsModal } from './InstructionsModal';
+import { AboutBusinessModal } from './AboutBusinessModal';
 
 interface VoiceContainerProps {
   business: BusinessPersona;
@@ -25,6 +27,8 @@ export function VoiceContainer({ business }: VoiceContainerProps) {
   const { setBusiness, currentState, transcript, microphonePermission, speechRecognitionSupported } = useVoiceStore();
   const { shortcutText } = useKeyboardShortcuts();
   const { processVoiceInput } = useVoiceAPI();
+  const processingRef = useRef(false);
+  const lastProcessedTranscript = useRef('');
 
   // Initialize speech engine (sets up capabilities)
   useSpeechEngine();
@@ -36,20 +40,35 @@ export function VoiceContainer({ business }: VoiceContainerProps) {
 
   // Handle state transitions to processing
   useEffect(() => {
-    if (currentState === 'PROCESSING' && transcript.trim()) {
-      processVoiceInput();
+    if (currentState === 'PROCESSING' && 
+        transcript.trim() && 
+        !processingRef.current && 
+        transcript !== lastProcessedTranscript.current) {
+      processingRef.current = true;
+      lastProcessedTranscript.current = transcript;
+      processVoiceInput().finally(() => {
+        processingRef.current = false;
+      });
     }
-  }, [currentState, transcript, processVoiceInput]);
+  }, [currentState, transcript, processVoiceInput]); // Re-added processVoiceInput with processing guard
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Main Voice Interface */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Phone className="w-5 h-5" />
-            Voice Assistant
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Phone className="w-5 h-5" />
+              Voice Assistant
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <AboutBusinessModal />
+              <InstructionsModal />
+              {/* Debug Modal Button (development only) */}
+              <DebugModal />
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Status Display */}
@@ -86,28 +105,8 @@ export function VoiceContainer({ business }: VoiceContainerProps) {
         </CardContent>
       </Card>
 
-      {/* Transcript Display */}
-      <TranscriptDisplay />
-
-      {/* Debug Panel (development only) */}
-      <DebugPanel />
-
-      {/* Instructions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">How to Use</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>1. Press and hold the &quot;Push to Talk&quot; button</p>
-          <p>2. Speak your question or request clearly</p>
-          <p>3. Release the button to send your message</p>
-          <p>4. Wait for the assistant to respond</p>
-          <p>5. Repeat as needed for your conversation</p>
-          <div className="mt-3 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs">
-            <strong>Tip:</strong> You can also hold the spacebar instead of clicking the button
-          </div>
-        </CardContent>
-      </Card>
+      {/* Current Exchange Display */}
+      <ConversationPreview />
     </div>
   );
 }

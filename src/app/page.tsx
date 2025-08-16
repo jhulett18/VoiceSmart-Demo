@@ -70,53 +70,6 @@ export default function Home() {
           
           {/* Voice Interface */}
           <VoiceContainer business={selectedBusiness} />
-          
-          {/* Business Information Display */}
-          <div className="max-w-4xl mx-auto space-y-6 mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>About Our Business</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">{selectedBusiness.description}</p>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
-                      <Activity className="w-4 h-4" />
-                      Our Services
-                    </h3>
-                    <ul className="space-y-2">
-                      {selectedBusiness.services.map((service, index) => (
-                        <li key={index} className="flex items-center gap-2 text-sm">
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
-                          {service}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        Business Hours
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{selectedBusiness.hours}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <Phone className="w-4 h-4" />
-                        Contact Information
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{selectedBusiness.phone}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     );

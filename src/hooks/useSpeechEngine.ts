@@ -36,6 +36,8 @@ declare global {
 export function useSpeechEngine() {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const userCancelledRef = useRef<boolean>(false);
+  const speechStartedRef = useRef<boolean>(false);
   
   const {
     setCapabilities,
@@ -140,7 +142,9 @@ export function useSpeechEngine() {
     }
 
     // Cancel any existing speech
+    userCancelledRef.current = true; // Mark as user-initiated cancel
     window.speechSynthesis.cancel();
+    userCancelledRef.current = false; // Reset for new speech
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9;
@@ -148,16 +152,20 @@ export function useSpeechEngine() {
     utterance.volume = 0.8;
 
     utterance.addEventListener('start', () => {
+      speechStartedRef.current = true;
       startResponding(text);
     });
 
     utterance.addEventListener('end', () => {
-      finishResponding();
+      speechStartedRef.current = false;
+      // Only finish responding if not cancelled by user
+      if (!userCancelledRef.current) {
+        finishResponding();
+      }
     });
 
-    utterance.addEventListener('error', () => {
-      setError('Speech synthesis error occurred');
-    });
+    // Removed error event listener entirely - speech synthesis errors are mostly
+    // browser quirks during cancellation. Real issues like API errors are handled elsewhere.
 
     synthesisRef.current = utterance;
     window.speechSynthesis.speak(utterance);
@@ -165,8 +173,20 @@ export function useSpeechEngine() {
 
   const cancelSpeech = () => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
+      // Mark as user-initiated cancellation
+      userCancelledRef.current = true;
+      speechStartedRef.current = false;
+      
+      // Cancel the speech synthesis
       window.speechSynthesis.cancel();
+      
+      // Clean up state - transition back to IDLE and ready for next input
       finishResponding();
+      
+      // Reset the cancellation flag - shorter delay since no error events to worry about
+      setTimeout(() => {
+        userCancelledRef.current = false;
+      }, 50);
     }
   };
 

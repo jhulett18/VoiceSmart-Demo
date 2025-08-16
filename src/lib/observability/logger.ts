@@ -28,33 +28,34 @@ class Logger {
 
     const isDevelopment = environment === 'development';
 
-    this.pino = pino({
-      level,
-      redact: {
-        paths: redactPaths,
-        censor: '[REDACTED]'
-      },
-      formatters: {
-        level: (label) => ({ level: label }),
-        bindings: () => ({
-          service,
-          environment,
-          pid: process.pid,
-          hostname: process.env.HOSTNAME || 'localhost'
-        })
-      },
-      timestamp: pino.stdTimeFunctions.isoTime,
-      ...(isDevelopment && {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss.l',
-            ignore: 'pid,hostname'
-          }
-        }
-      })
-    });
+    try {
+      this.pino = pino({
+        level,
+        redact: {
+          paths: redactPaths,
+          censor: '[REDACTED]'
+        },
+        formatters: {
+          level: (label) => ({ level: label }),
+          bindings: () => ({
+            service,
+            environment,
+            pid: process.pid,
+            hostname: process.env.HOSTNAME || 'localhost'
+          })
+        },
+        timestamp: pino.stdTimeFunctions.isoTime
+        // Removed pino-pretty transport to prevent worker crashes
+        // Raw JSON logs are more stable for high-volume logging
+      });
+    } catch (error) {
+      // Fallback to basic console logging if pino fails
+      console.warn('Failed to initialize pino logger, falling back to console:', error);
+      this.pino = pino({
+        level: 'info',
+        timestamp: pino.stdTimeFunctions.isoTime
+      });
+    }
   }
 
   // ===================================
@@ -70,7 +71,11 @@ class Logger {
   }
 
   info(msg: string, obj?: object): void {
-    this.pino.info(obj, msg);
+    try {
+      this.pino.info(obj, msg);
+    } catch (error) {
+      console.info(`[INFO] ${msg}`, obj || '');
+    }
   }
 
   warn(msg: string, obj?: object): void {
@@ -78,16 +83,20 @@ class Logger {
   }
 
   error(msg: string, obj?: object | Error): void {
-    if (obj instanceof Error) {
-      this.pino.error({
-        error: {
-          name: obj.name,
-          message: obj.message,
-          stack: obj.stack
-        }
-      }, msg);
-    } else {
-      this.pino.error(obj, msg);
+    try {
+      if (obj instanceof Error) {
+        this.pino.error({
+          error: {
+            name: obj.name,
+            message: obj.message,
+            stack: obj.stack
+          }
+        }, msg);
+      } else {
+        this.pino.error(obj, msg);
+      }
+    } catch (error) {
+      console.error(`[ERROR] ${msg}`, obj || '');
     }
   }
 
