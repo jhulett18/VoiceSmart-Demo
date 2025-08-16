@@ -1,10 +1,21 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useVoiceStore } from '@/stores/voiceStore';
 import { MessageSquare, Mic, Bot, Clock, Loader2, User, Trash2 } from 'lucide-react';
+
+// Dynamic import to avoid SSR issues with llm-ui
+const LLMMessage = dynamic(() => import('./LLMMessage').then(mod => ({ default: mod.LLMMessage })), {
+  ssr: false,
+  loading: () => (
+    <div className="text-sm text-foreground leading-relaxed animate-pulse">
+      Loading...
+    </div>
+  )
+});
 
 export function ConversationPreview() {
   const { 
@@ -115,7 +126,7 @@ export function ConversationPreview() {
                         </span>
                       </div>
                       <div className="p-3 bg-gray-50 dark:bg-gray-950 rounded-lg rounded-tl-none">
-                        <p className="text-sm text-foreground">{exchange.assistantResponse}</p>
+                        <LLMMessage content={exchange.assistantResponse} />
                       </div>
                     </div>
                   </div>
@@ -185,12 +196,10 @@ export function ConversationPreview() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="p-3 bg-gray-50 dark:bg-gray-950 rounded-lg rounded-tl-none border border-gray-200 dark:border-gray-800">
-                        <div className="text-sm text-foreground leading-relaxed">
-                          {currentResponse}
-                          {currentState === 'RESPONDING' && (
-                            <span className="inline-block w-2 h-4 bg-green-500 animate-pulse ml-2 rounded-sm"></span>
-                          )}
-                        </div>
+                        <LLMMessage 
+                          content={currentResponse} 
+                          isStreaming={currentState === 'RESPONDING'} 
+                        />
                       </div>
                     </div>
                   </div>

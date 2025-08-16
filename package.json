@@ -25,6 +25,9 @@
     "setup:dev": "npm run docker:up && npm run seed:docs"
   },
   "dependencies": {
+    "@llm-ui/code": "^0.13.3",
+    "@llm-ui/markdown": "^0.13.3",
+    "@llm-ui/react": "^0.13.3",
     "@openai/codex": "^0.21.0",
     "@opentelemetry/api": "^1.8.0",
     "@opentelemetry/auto-instrumentations-node": "^0.52.1",
@@ -51,6 +54,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "googleapis": "^134.0.0",
+    "html-react-parser": "^5.2.6",
     "ioredis": "^5.3.2",
     "lru-cache": "^10.2.0",
     "lucide-react": "^0.539.0",
@@ -64,6 +68,9 @@
     "pino-pretty": "^13.1.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "shiki": "^3.9.2",
     "sudo": "^1.0.3",
     "tailwind-merge": "^3.3.1",
     "update": "^0.7.4",

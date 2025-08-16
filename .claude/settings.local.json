@@ -38,7 +38,9 @@
       "Bash(lsof:*)",
       "Bash(ss:*)",
       "Bash(kill:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "WebSearch",
+      "WebFetch(domain:llm-ui.com)"
     ],
     "deny": []
   }
