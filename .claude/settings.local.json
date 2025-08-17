@@ -40,7 +40,8 @@
       "Bash(kill:*)",
       "Bash(mv:*)",
       "WebSearch",
-      "WebFetch(domain:llm-ui.com)"
+      "WebFetch(domain:llm-ui.com)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

@@ -14,6 +14,24 @@ export interface ConversationExchange {
   userMessage: string;
   assistantResponse: string;
   timestamp: Date;
+  metrics?: {
+    processingTime: number;
+    responseTime: number;
+    voiceQuality: number;
+    transcriptConfidence: number;
+    resolved: boolean;
+  };
+}
+
+interface VoiceMetrics {
+  sessionStartTime: Date | null;
+  totalInteractions: number;
+  successfulInteractions: number;
+  avgResponseTime: number;
+  avgProcessingTime: number;
+  voiceQualityScore: number;
+  transcriptAccuracy: number;
+  currentInteractionStart: Date | null;
 }
 
 interface VoiceStore {
@@ -27,6 +45,9 @@ interface VoiceStore {
   
   // Conversation History
   conversationHistory: ConversationExchange[];
+  
+  // Metrics
+  metrics: VoiceMetrics;
   
   // Capabilities
   speechRecognitionSupported: boolean;
@@ -55,6 +76,11 @@ interface VoiceStore {
   
   // Conversation Actions
   clearConversationHistory: () => void;
+  
+  // Metrics Actions
+  initializeSession: () => void;
+  updateVoiceQuality: (quality: number) => void;
+  updateTranscriptAccuracy: (accuracy: number) => void;
 }
 
 export const useVoiceStore = create<VoiceStore>((set, get) => ({
@@ -66,6 +92,16 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   currentResponse: '',
   error: null,
   conversationHistory: [],
+  metrics: {
+    sessionStartTime: null,
+    totalInteractions: 0,
+    successfulInteractions: 0,
+    avgResponseTime: 0,
+    avgProcessingTime: 0,
+    voiceQualityScore: 95,
+    transcriptAccuracy: 95,
+    currentInteractionStart: null,
+  },
   speechRecognitionSupported: false,
   speechSynthesisSupported: false,
   microphonePermission: 'unknown',
@@ -115,7 +151,12 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
         currentState: 'RECORDING',
         transcript: '',
         interimTranscript: '',
-        error: null
+        error: null,
+        metrics: {
+          ...state.metrics,
+          currentInteractionStart: new Date(),
+          sessionStartTime: state.metrics.sessionStartTime || new Date()
+        }
       });
     }
   },
@@ -160,21 +201,56 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   finishResponding: () => {
     const state = get();
     if (state.currentState === 'RESPONDING' && state.transcript && state.currentResponse) {
-      // Save the completed exchange to history
+      // Calculate interaction metrics
+      const now = new Date();
+      const interactionTime = state.metrics.currentInteractionStart 
+        ? now.getTime() - state.metrics.currentInteractionStart.getTime()
+        : 0;
+      
+      const processingTime = Math.floor(Math.random() * 2000 + 500); // Mock processing time
+      const responseTime = interactionTime;
+      const voiceQuality = Math.floor(Math.random() * 10 + 90); // 90-100%
+      const transcriptConfidence = Math.floor(Math.random() * 15 + 85); // 85-100%
+      
+      // Save the completed exchange to history with metrics
       const exchange: ConversationExchange = {
         id: Math.random().toString(36).substring(7),
         userMessage: state.transcript,
         assistantResponse: state.currentResponse,
-        timestamp: new Date()
+        timestamp: now,
+        metrics: {
+          processingTime,
+          responseTime,
+          voiceQuality,
+          transcriptConfidence,
+          resolved: true // Assume resolved for demo
+        }
       };
+      
+      // Update session metrics
+      const newTotalInteractions = state.metrics.totalInteractions + 1;
+      const newSuccessfulInteractions = state.metrics.successfulInteractions + 1;
+      const newAvgResponseTime = Math.floor(
+        (state.metrics.avgResponseTime * state.metrics.totalInteractions + responseTime) / newTotalInteractions
+      );
+      const newAvgProcessingTime = Math.floor(
+        (state.metrics.avgProcessingTime * state.metrics.totalInteractions + processingTime) / newTotalInteractions
+      );
       
       set({
         currentState: 'IDLE',
         currentResponse: '',
         transcript: '',
         interimTranscript: '',
-        // Add new exchange at the end (bottom) for bottom-to-top ordering
-        conversationHistory: [...state.conversationHistory, exchange]
+        conversationHistory: [...state.conversationHistory, exchange],
+        metrics: {
+          ...state.metrics,
+          totalInteractions: newTotalInteractions,
+          successfulInteractions: newSuccessfulInteractions,
+          avgResponseTime: newAvgResponseTime,
+          avgProcessingTime: newAvgProcessingTime,
+          currentInteractionStart: null
+        }
       });
     } else if (state.currentState === 'RESPONDING') {
       // If no transcript/response, just go back to idle
@@ -182,7 +258,11 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
         currentState: 'IDLE',
         currentResponse: '',
         transcript: '',
-        interimTranscript: ''
+        interimTranscript: '',
+        metrics: {
+          ...state.metrics,
+          currentInteractionStart: null
+        }
       });
     }
   },
@@ -216,5 +296,31 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   
   clearConversationHistory: () => set({
     conversationHistory: []
-  })
+  }),
+  
+  // Metrics Actions
+  initializeSession: () => set((state) => ({
+    metrics: {
+      ...state.metrics,
+      sessionStartTime: new Date(),
+      totalInteractions: 0,
+      successfulInteractions: 0,
+      avgResponseTime: 0,
+      avgProcessingTime: 0,
+    }
+  })),
+  
+  updateVoiceQuality: (quality) => set((state) => ({
+    metrics: {
+      ...state.metrics,
+      voiceQualityScore: quality
+    }
+  })),
+  
+  updateTranscriptAccuracy: (accuracy) => set((state) => ({
+    metrics: {
+      ...state.metrics,
+      transcriptAccuracy: accuracy
+    }
+  }))
 }));
